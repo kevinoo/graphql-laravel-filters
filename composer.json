@@ -1,6 +1,6 @@
 {
     "name": "kevinoo/graphql-laravel-filters",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "type": "library",
     "description": "This library extends the functionalities of rebing/graphql-laravel, providing a comprehensive solution for managing pagination and applying advanced filters to GraphQL queries in Laravel applications.",
     "keywords": ["framework","laravel","graphql","react"],
