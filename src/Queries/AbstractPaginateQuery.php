@@ -14,14 +14,12 @@ abstract class AbstractPaginateQuery extends Query
 {
     use PipelineFiltersTrait;
 
+    /**
+     * Define the limit of data to return per page.
+     * Use -1 value to return all results
+     * @const integer
+    */
     public const MAX_LIMIT_RESULTS = 1000;
-
-//    protected $attributes = [
-//        'name' => 'links',
-//    ];
-//    protected $middleware = [
-//
-//    ];
 
     public function type(): Type
     {
