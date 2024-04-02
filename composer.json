@@ -47,9 +47,6 @@
         "tests": "phpunit --colors=always --verbose"
     },
     "extra": {
-        "branch-alias": {
-            "dev-master": "dev-main"
-        }
     },
     "config": {
         "optimize-autoloader": true,
