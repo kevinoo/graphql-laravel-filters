@@ -1,11 +1,8 @@
-# Extension Library for rebing/graphql-laravel
-
+# kevinoo/graphql-laravel-filters
 This library extends the functionalities of "rebing/graphql-laravel," providing a comprehensive solution for managing pagination and applying advanced filters to GraphQL queries in Laravel applications.
 
 ## Installation
-
 Use Composer to install the library:
-
 ```bash
 composer require kevinoo/graphql-laravel-filters
 ```
@@ -13,7 +10,7 @@ composer require kevinoo/graphql-laravel-filters
 ## Usage
 To utilize pagination in GraphQL queries, simply extend the AbstractPaginateQuery class provided by this library and use it in query resolvers.
 ```php
-use kevinoo\graphql-laravel-filters;
+use kevinoo\GraphQL\Queries;
 
 class MyCustomModelQuery extends AbstractPaginateQuery {
     
@@ -50,10 +47,9 @@ class MyCustomModelQuery extends AbstractPaginateQuery {
     public function getGenericFiltersKeys(): array
     {
         return [
-            'your_input_key' => 'model_attribute', // Input value can be string, int, boolean or array
-            'domain' => new AdvancedSearch('domain'),
-            'legal_countries' => 'legal_country',
-            'commercial_countries' => 'commercial_country',
+            'your_input_key_1' => 'model_attribute_1', // Input value can be string, int, boolean or array
+            'your_input_key_2' => new AdvancedSearch('model_attribute_to_apply_advanced_search'),
+            'your_input_key_3_array' => 'model_attribute_2',
         ];
     }
 
@@ -69,4 +65,4 @@ class MyCustomModelQuery extends AbstractPaginateQuery {
 ```
 
 ## Contributing
-You are welcome to contribute to the project! Please read the contribution guidelines before getting started.
+You are welcome to contribute to the project!

@@ -1,0 +1,65 @@
+{
+    "name": "kevinoo/graphql-laravel-filters",
+    "version": "0.1.0",
+    "type": "library",
+    "description": "This library extends the functionalities of rebing/graphql-laravel, providing a comprehensive solution for managing pagination and applying advanced filters to GraphQL queries in Laravel applications.",
+    "keywords": ["framework","laravel","graphql","react"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kevin Lucich",
+            "email": "info@lucichkevin.it",
+            "homepage": "https://www.lucichkevin.it",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "info@lucichkevin.it"
+    },
+    "funding": [
+        {
+            "type": "paypal",
+            "url": "https://www.paypal.com/paypalme/kevinlucich"
+        }
+    ],
+    "require": {
+        "php": "^8.1|^8.2|^8.3",
+        "illuminate/database": "^8.0|^9.0|^10.0|^11.0",
+        "illuminate/pipeline": "^8.0|^9.0|^10.0|^11.0",
+        "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
+        "rebing/graphql-laravel": "^8.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "roave/security-advisories": "dev-latest"
+    },
+    "autoload": {
+        "psr-4": {
+            "kevinoo\\GraphQL\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "kevinoo\\GraphQL\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "tests": "phpunit --colors=always --verbose"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "dev-main"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
