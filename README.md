@@ -12,8 +12,12 @@ To utilize pagination in GraphQL queries, simply extend the AbstractPaginateQuer
 ```php
 use kevinoo\GraphQL\Queries;
 
-class MyCustomModelQuery extends AbstractPaginateQuery {
-    
+class MyCustomModelQuery extends AbstractPaginateQuery 
+{
+//    public const GENERIC_FILTERS = true;
+//    public const TRASHED_FILTER = true;
+//    public const MAX_LIMIT_RESULTS = 1000;
+
     protected $attributes = [
         'name' => 'Name of Query',
     ];
@@ -32,7 +36,7 @@ class MyCustomModelQuery extends AbstractPaginateQuery {
         ];
     }
 
-    public function resolveModelBuilder( array $args ): Builder
+    protected function resolveModelBuilder( array $args ): Builder
     {
         $builder = YourModel::query();
 
@@ -44,7 +48,7 @@ class MyCustomModelQuery extends AbstractPaginateQuery {
         return $builder;
     }
 
-    public function getGenericFiltersKeys(): array
+    protected function getGenericFiltersKeys(): array
     {
         return [
             'your_input_key_1' => 'model_attribute_1', // Input value can be string, int, boolean or array
@@ -53,14 +57,12 @@ class MyCustomModelQuery extends AbstractPaginateQuery {
         ];
     }
 
-    public function getPipelineSteps(): array
+    protected function getPipelineFiltersSteps(): array
     {
-        return [
-            GenericFilters::class,
+        return parent::getPipelineFiltersSteps() + [
             // Add your other custom filters class
         ];
     }
-
 }
 ```
 
