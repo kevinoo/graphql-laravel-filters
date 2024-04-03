@@ -2,6 +2,11 @@
 
 namespace kevinoo\GraphQL\Queries;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pipeline\Pipeline;
+use InvalidArgumentException;
+use kevinoo\GraphQL\Filters\GenericFilters;
+use kevinoo\GraphQL\Filters\WithTrashedFilter;
 use kevinoo\GraphQL\InputObject\OrderInputObjectType;
 use Closure;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -12,7 +17,20 @@ use Rebing\GraphQL\Support\Query;
 
 abstract class AbstractPaginateQuery extends Query
 {
-    use PipelineFiltersTrait;
+    /**
+     * Enable GenericFilter step in the pipeline flow.
+     * @var bool|string True|false to enable GenericFilters class, can be class name (string) with the class to use. Otherwise, (false) to deactivate this feature.
+     * @see GenericFilters
+     */
+    public const GENERIC_FILTERS = true;
+
+    /**
+     * Enable WithTrashedFilter step in the pipeline flow.
+     * @var bool|string True|false to enable WithTrashedFilter class, can be class name (string) with the class to use. Otherwise, (false) to deactivate this feature.
+     * Warning: see README.md how to use this, must be existing in input query params the key "deleted" (bool).
+     * @see WithTrashedFilter
+     */
+    public const TRASHED_FILTER = true;
 
     /**
      * Define the limit of data to return per page.
@@ -20,6 +38,7 @@ abstract class AbstractPaginateQuery extends Query
      * @const integer
     */
     public const MAX_LIMIT_RESULTS = 1000;
+
 
     public function type(): Type
     {
@@ -31,7 +50,8 @@ abstract class AbstractPaginateQuery extends Query
         return [
             'limit' => [
                 'type' => Type::nonNull(Type::int()),
-                'description' => 'The number of results to retrive (max is '. static::MAX_LIMIT_RESULTS .')',
+                'description' => 'The number of results to retrive'.
+                    (!empty(static::MAX_LIMIT_RESULTS) && static::MAX_LIMIT_RESULTS > 0) ? ' (maximum is '. static::MAX_LIMIT_RESULTS .')' : '',
             ],
             'page' => [
                 'type' => Type::int(),
@@ -47,7 +67,7 @@ abstract class AbstractPaginateQuery extends Query
     public function resolve($root, $args, $context, ResolveInfo $info, Closure $getSelectFields)
     {
         $page = $args['page'] ?? 1;
-        $limit = min($args['limit'],static::MAX_LIMIT_RESULTS);
+        $limit = min($args['limit'],static::MAX_LIMIT_RESULTS ?? -1 );
 
         $fields = $getSelectFields();
 
@@ -58,13 +78,74 @@ abstract class AbstractPaginateQuery extends Query
     }
 
 
-    abstract public function getGraphQLType(): string;
+    /**
+     * Return the GraphQL Type to return by the paginator
+     * @return string
+     * @see self::type()
+     */
+    abstract protected function getGraphQLType(): string;
 
-    public function getOrderByFields(): array
+    /**
+     * Return a builder instance using an Eloquent model
+     * @param array $args
+     * @return Builder
+     */
+    abstract protected function resolveModelBuilder( array $args ): Builder;
+
+    /**
+     * Returns map of filters to database columns
+     * @return array
+     */
+    abstract protected function getGenericFiltersKeys(): array;
+
+
+    protected function getOrderByFields(): array
     {
         return [
 //            'column_key' => 'Description'
         ];
     }
 
+    /**
+     * Returns list of filter's class to add to Pipeline
+     * @return array
+     */
+    protected function getPipelineFiltersSteps(): array
+    {
+        $filters = [];
+
+        if( !empty(static::GENERIC_FILTERS) ){
+            $filters[] = match(true){
+                is_bool(static::GENERIC_FILTERS) => GenericFilters::class,
+                is_string(static::GENERIC_FILTERS) => static::GENERIC_FILTERS,
+                default => throw new InvalidArgumentException('Value of const GENERIC_FILTERS is invalid. Must be bool or string'),
+            };
+        }
+
+        if( static::TRASHED_FILTER ){
+            $filters[] = match(true){
+                is_bool(static::TRASHED_FILTER) => WithTrashedFilter::class,
+                is_string(static::TRASHED_FILTER) => static::TRASHED_FILTER,
+                default => throw new InvalidArgumentException('Value of const TRASHED_FILTER is invalid. Must be bool or string'),
+            };
+        }
+
+        return $filters;
+    }
+
+
+    protected function resolveFiltersPipeline( array $args ): Builder
+    {
+        /** @noinspection PhpUndefinedFunctionInspection */
+        [$builder] = app(Pipeline::class)
+            ->send([
+                $this->resolveModelBuilder($args),
+                $this->getGenericFiltersKeys(),
+                $args['filters'] ?? [],
+            ])
+            ->through($this->getPipelineFiltersSteps())
+            ->thenReturn();
+
+        return $builder;
+    }
 }
